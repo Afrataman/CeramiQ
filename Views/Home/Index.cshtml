@@ -1,0 +1,324 @@
+﻿@model CeramiQ.Web.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Genel Bakış";
+
+    var criticalStockRate = Model.ProductCount == 0
+        ? 0
+        : (int)Math.Round(
+            (double)Model.CriticalStockCount /
+            Model.ProductCount * 100);
+}
+
+<div class="dashboard-heading">
+    <div>
+        <span class="eyebrow">ÜRETİME GENEL BAKIŞ</span>
+
+        <h1>Operasyon Dashboard’u</h1>
+
+        <p>
+            Ürün, stok ve üretim verilerini tek ekrandan
+            takip ederek gerekli işlemleri kolayca yönetin.
+        </p>
+    </div>
+
+    <a asp-controller="Products"
+       asp-action="Create"
+       class="primary-action">
+        <span>＋</span>
+        Yeni Ürün Ekle
+    </a>
+</div>
+
+<section class="metric-grid">
+
+    <article class="metric-card">
+        <div class="metric-top">
+            <span class="metric-label">Kayıtlı Ürün</span>
+            <span class="metric-icon">▦</span>
+        </div>
+
+        <div class="metric-value">@Model.ProductCount</div>
+
+        <p class="metric-description">
+            Sistemde tanımlı ürün çeşidi
+        </p>
+    </article>
+
+    <article class="metric-card">
+        <div class="metric-top">
+            <span class="metric-label">Toplam Stok</span>
+            <span class="metric-icon">≋</span>
+        </div>
+
+        <div class="metric-value">
+            @Model.TotalStock.ToString("0.##")
+        </div>
+
+        <p class="metric-description">
+            Mevcut toplam stok miktarı
+        </p>
+    </article>
+
+    <article class="metric-card
+                    @(Model.CriticalStockCount > 0 ? "has-alert" : "")">
+
+        <div class="metric-top">
+            <span class="metric-label">Kritik Stok</span>
+            <span class="metric-icon">!</span>
+        </div>
+
+        <div class="metric-value">
+            @Model.CriticalStockCount
+        </div>
+
+        <p class="metric-description">
+            Minimum seviyenin altındaki ürünler
+        </p>
+    </article>
+
+    <article class="metric-card">
+        <div class="metric-top">
+            <span class="metric-label">Aktif Üretim Emri</span>
+            <span class="metric-icon">⚙</span>
+        </div>
+
+        <div class="metric-value">
+            @Model.ActiveProductionOrderCount
+        </div>
+
+        <p class="metric-description">
+            Devam eden üretim işlemleri
+        </p>
+    </article>
+</section>
+<section class="smart-alert-center">
+    <div class="smart-alert-header">
+        <div>
+            <span class="eyebrow">AKILLI ANALİZ</span>
+            <h2>Akıllı Uyarı Merkezi</h2>
+
+            <p>
+                Stok ve üretim verilerindeki önemli durumları
+                otomatik olarak takip eder.
+            </p>
+        </div>
+
+        <span class="alert-count-badge">
+            @Model.TotalAlertCount uyarı
+        </span>
+    </div>
+
+    @if (Model.TotalAlertCount == 0)
+    {
+        <div class="no-alert-message">
+            <span class="alert-symbol">✓</span>
+
+            <div>
+                <strong>Her şey yolunda görünüyor.</strong>
+
+                <p>
+                    Şu anda ilgilenmeniz gereken kritik bir durum
+                    bulunmuyor.
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="smart-alert-grid">
+            @if (Model.CriticalStockCount > 0)
+            {
+                <article class="smart-alert-card alert-stock">
+                    <span class="alert-symbol">!</span>
+
+                    <div>
+                        <span class="alert-type">KRİTİK STOK</span>
+
+                        <h3>
+                            @Model.CriticalStockCount ürün kritik seviyede
+                        </h3>
+
+                        <p>
+                            Stok miktarı minimum stok seviyesine ulaşan
+                            ürünleri kontrol edin.
+                        </p>
+
+                        <div class="alert-card-actions">
+                            <a asp-controller="Products"
+                               asp-action="Index">
+                                Ürünleri İncele →
+                            </a>
+
+                            <a asp-controller="Home"
+                               asp-action="ExplainAlert"
+                               asp-route-type="stock"
+                               class="explain-alert-link">
+                                ✦ AI ile Açıkla
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            }
+
+            @if (Model.HighScrapOrderCount > 0)
+            {
+                <article class="smart-alert-card alert-scrap">
+                    <span class="alert-symbol">%</span>
+
+                    <div>
+                        <span class="alert-type">YÜKSEK FİRE</span>
+
+                        <h3>
+                            @Model.HighScrapOrderCount emirde yüksek fire
+                        </h3>
+
+                        <p>
+                            Fire oranı yüzde 10 veya daha yüksek olan
+                            üretim emirlerini inceleyin.
+                        </p>
+
+                        <div class="alert-card-actions">
+                            <a asp-controller="ProductionOrders"
+                               asp-action="Index">
+                                Emirleri İncele →
+                            </a>
+
+                            <a asp-controller="Home"
+                               asp-action="ExplainAlert"
+                               asp-route-type="scrap"
+                               class="explain-alert-link">
+                                ✦ AI ile Açıkla
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            }
+
+            @if (Model.DelayedProductionOrderCount > 0)
+            {
+                <article class="smart-alert-card alert-delay">
+                    <span class="alert-symbol">⌛</span>
+
+                    <div>
+                        <span class="alert-type">GECİKEN ÜRETİM</span>
+
+                        <h3>
+                            @Model.DelayedProductionOrderCount emir gecikti
+                        </h3>
+
+                        <p>
+                            Teslim tarihi geçen ve henüz tamamlanmayan
+                            üretim emirlerini kontrol edin.
+                        </p>
+
+                        <div class="alert-card-actions">
+                            <a asp-controller="ProductionOrders"
+                               asp-action="Index">
+                                Emirleri İncele →
+                            </a>
+
+                            <a asp-controller="Home"
+                               asp-action="ExplainAlert"
+                               asp-route-type="delay"
+                               class="explain-alert-link">
+                                ✦ AI ile Açıkla
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
+<section class="dashboard-lower-grid">
+
+    <div class="dashboard-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Operasyon Özeti</h2>
+                <p>Sistemdeki mevcut verilerin kısa özeti</p>
+            </div>
+
+            <span class="panel-tag">Canlı Veri</span>
+        </div>
+
+        <div class="summary-row">
+            <span class="summary-name">
+                <span class="summary-icon">▦</span>
+                Ürün kataloğu
+            </span>
+
+            <span class="summary-value">
+                @Model.ProductCount ürün
+            </span>
+        </div>
+
+        <div class="summary-row">
+            <span class="summary-name">
+                <span class="summary-icon">≋</span>
+                Stok miktarı
+            </span>
+
+            <span class="summary-value">
+                @Model.TotalStock.ToString("0.##")
+            </span>
+        </div>
+
+        <div class="summary-row">
+            <span class="summary-name">
+                <span class="summary-icon">!</span>
+                Kritik stok oranı
+            </span>
+
+            <span class="summary-value">
+                %@criticalStockRate
+            </span>
+        </div>
+
+        <div class="summary-row">
+            <span class="summary-name">
+                <span class="summary-icon">⚙</span>
+                Üretim durumu
+            </span>
+
+            <span class="summary-value">
+                @Model.ActiveProductionOrderCount aktif emir
+            </span>
+        </div>
+    </div>
+
+    <div class="dashboard-panel priority-box">
+        <div class="priority-symbol">✦</div>
+
+        <h2>Bugünkü Öncelik</h2>
+
+        @if (Model.ProductCount == 0)
+        {
+            <p>
+                Dashboard analizlerinin başlayabilmesi için
+                sisteme ilk ürününüzü ekleyin.
+            </p>
+        }
+        else if (Model.CriticalStockCount > 0)
+        {
+            <p>
+                @Model.CriticalStockCount ürün minimum stok
+                seviyesinin altında. Stokları kontrol edin.
+            </p>
+        }
+        else
+        {
+            <p>
+                Stok seviyeleri şu anda normal görünüyor.
+                Kritik işlem gerektiren bir ürün bulunmuyor.
+            </p>
+        }
+
+        <a asp-controller="Products"
+           asp-action="Index"
+           class="secondary-action">
+            Ürünleri İncele →
+        </a>
+    </div>
+</section>

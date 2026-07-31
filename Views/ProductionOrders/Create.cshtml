@@ -1,0 +1,141 @@
+﻿@model CeramiQ.Web.ViewModels.ProductionOrderCreateViewModel
+
+@{
+    ViewData["Title"] = "Yeni Üretim Emri";
+}
+
+<div class="production-form-page">
+    <div class="production-form-heading">
+        <a asp-action="Index" class="production-back-link">
+            ← Üretim emirlerine dön
+        </a>
+
+        <span class="eyebrow">ÜRETİM TAKİBİ</span>
+        <h1>Yeni Üretim Emri</h1>
+
+        <p>
+            Üretilecek ürünü, üretim hattını ve planlanan
+            miktarı belirleyin.
+        </p>
+    </div>
+
+    @if (Model.Products.Count == 0)
+    {
+        <div class="production-form-warning">
+            <strong>Henüz seçilebilecek ürün bulunmuyor.</strong>
+
+            <span>
+                Üretim emri oluşturmadan önce ürün eklemelisiniz.
+            </span>
+
+            <a asp-controller="Products" asp-action="Create">
+                Yeni ürün ekle
+            </a>
+        </div>
+    }
+
+    <form asp-action="Create"
+          method="post"
+          class="production-form-card">
+
+        <div asp-validation-summary="ModelOnly"
+             class="production-validation-summary">
+        </div>
+
+        <div class="production-form-grid">
+            <div class="production-form-field">
+                <label asp-for="OrderNumber"></label>
+
+                <input asp-for="OrderNumber"
+                       placeholder="Örneğin: URE-2026-001" />
+
+                <span asp-validation-for="OrderNumber"
+                      class="production-field-error">
+                </span>
+            </div>
+
+            <div class="production-form-field">
+                <label asp-for="ProductId"></label>
+
+                <select asp-for="ProductId"
+                        asp-items="Model.Products">
+                    <option value="">Ürün seçin</option>
+                </select>
+
+                <span asp-validation-for="ProductId"
+                      class="production-field-error">
+                </span>
+            </div>
+
+            <div class="production-form-field">
+                <label asp-for="ProductionLine"></label>
+
+                <input asp-for="ProductionLine"
+                       placeholder="Örneğin: Hat 1" />
+
+                <span asp-validation-for="ProductionLine"
+                      class="production-field-error">
+                </span>
+            </div>
+
+            <div class="production-form-field">
+                <label asp-for="PlannedQuantity"></label>
+
+                <input asp-for="PlannedQuantity"
+                       type="number"
+                       min="0.01"
+                       step="0.01"
+                       placeholder="Örneğin: 5000" />
+
+                <span asp-validation-for="PlannedQuantity"
+                      class="production-field-error">
+                </span>
+            </div>
+
+            <div class="production-form-field">
+                <label asp-for="StartDate"></label>
+                <input asp-for="StartDate" />
+
+                <span asp-validation-for="StartDate"
+                      class="production-field-error">
+                </span>
+            </div>
+
+            <div class="production-form-field">
+                <label asp-for="DueDate"></label>
+                <input asp-for="DueDate" />
+
+                <span asp-validation-for="DueDate"
+                      class="production-field-error">
+                </span>
+            </div>
+        </div>
+
+        <div class="production-form-actions">
+            <a asp-action="Index"
+               class="production-secondary-button">
+                İptal
+            </a>
+
+            @if (Model.Products.Count == 0)
+            {
+                <button type="submit"
+                        class="production-primary-button"
+                        disabled>
+                    Üretim Emrini Kaydet
+                </button>
+            }
+            else
+            {
+                <button type="submit"
+                        class="production-primary-button">
+                    Üretim Emrini Kaydet
+                </button>
+            }
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

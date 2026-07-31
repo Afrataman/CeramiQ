@@ -1,0 +1,280 @@
+﻿@model IEnumerable<CeramiQ.Web.Models.Product>
+
+@{
+    ViewData["Title"] = "Ürünler";
+
+    var products = Model.ToList();
+
+    var criticalCount = products.Count(product =>
+        product.StockQuantity <= product.MinimumStockLevel);
+
+    var categories = products
+        .Where(product => !string.IsNullOrWhiteSpace(product.Category))
+        .Select(product => product.Category)
+        .Distinct()
+        .OrderBy(category => category)
+        .ToList();
+}
+
+<div class="products-heading">
+    <div>
+        <span class="eyebrow">ÜRÜN VE STOK YÖNETİMİ</span>
+        <h1>Ürünler</h1>
+
+        <p>
+            Ürünleri inceleyin, stok durumlarını takip edin
+            ve yeni ürün kayıtları oluşturun.
+        </p>
+    </div>
+
+    <a asp-action="Create" class="primary-action">
+        <span>＋</span>
+        Yeni Ürün Ekle
+    </a>
+</div>
+
+<section class="product-summary-grid">
+    <div class="product-summary-card">
+        <span>Toplam Ürün</span>
+        <strong>@products.Count</strong>
+    </div>
+
+    <div class="product-summary-card">
+        <span>Kritik Stok</span>
+        <strong class="danger-text">@criticalCount</strong>
+    </div>
+
+    <div class="product-summary-card">
+        <span>Kategori</span>
+        <strong>@categories.Count</strong>
+    </div>
+
+    <div class="product-summary-card">
+        <span>Görüntülenen</span>
+        <strong id="visibleProductCount">@products.Count</strong>
+    </div>
+</section>
+
+<section class="product-toolbar">
+    <div class="filter-field search-field">
+        <label for="productSearch">Ürün ara</label>
+
+        <input id="productSearch"
+               type="search"
+               placeholder="Ürün adı veya kodu yazın..." />
+    </div>
+
+    <div class="filter-field">
+        <label for="categoryFilter">Kategori</label>
+
+        <select id="categoryFilter">
+            <option value="">Tüm kategoriler</option>
+
+            @foreach (var category in categories)
+            {
+                <option value="@category">@category</option>
+            }
+        </select>
+    </div>
+
+    <div class="filter-field">
+        <label for="stockFilter">Stok durumu</label>
+
+        <select id="stockFilter">
+            <option value="">Tüm durumlar</option>
+            <option value="normal">Normal</option>
+            <option value="critical">Kritik</option>
+        </select>
+    </div>
+</section>
+
+<div class="product-table-card">
+    @if (products.Count == 0)
+    {
+        <div class="empty-products">
+            <div class="empty-products-icon">▦</div>
+
+            <h2>Henüz ürün bulunmuyor</h2>
+
+            <p>
+                Stok takibine başlayabilmek için ilk ürününüzü ekleyin.
+            </p>
+
+            <a asp-action="Create" class="primary-action">
+                İlk Ürünü Ekle
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Ürün</th>
+                        <th>Kategori</th>
+                        <th>Stok</th>
+                        <th>Minimum Seviye</th>
+                        <th>Durum</th>
+                        <th class="action-column">İşlemler</th>
+                    </tr>
+                </thead>
+
+                <tbody id="productTableBody">
+                    @foreach (var product in products)
+                    {
+                        var isCritical =
+                        product.StockQuantity <= product.MinimumStockLevel;
+
+                        var searchText =
+                        $"{product.ProductCode} {product.Name}";
+
+                        <tr class="product-row"
+                            data-search="@searchText"
+                            data-category="@product.Category"
+                            data-status="@(isCritical ? "critical" : "normal")">
+
+                            <td>
+                                <div class="product-name-cell">
+                                    <span class="product-avatar">▦</span>
+
+                                    <div>
+                                        <strong>@product.Name</strong>
+                                        <small>@product.ProductCode</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>@product.Category</td>
+
+                            <td>
+                                <strong>
+                                    @product.StockQuantity.ToString("0.##")
+                                </strong>
+
+                                <small class="unit-text">
+                                    @product.Unit
+                                </small>
+                            </td>
+
+                            <td>
+                                @product.MinimumStockLevel.ToString("0.##")
+                                @product.Unit
+                            </td>
+
+                            <td>
+                                <span class="stock-badge
+                                              @(isCritical ? "critical" : "normal")">
+
+                                    @(isCritical
+                                                                ? "Kritik Stok"
+                                                                : "Stok Normal")
+                        </span>
+                    </td>
+
+                            <td>
+                                <div class="product-actions">
+                                    <a asp-action="Edit"
+                                       asp-route-id="@product.Id"
+                                       class="action-link edit-link">
+                                        Düzenle
+                                    </a>
+
+                                    <a asp-action="Details"
+                                       asp-route-id="@product.Id"
+                                       class="action-link">
+                                        Detay
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@product.Id"
+                                       class="action-link delete-link">
+                                        Sil
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                                }
+                </tbody>
+            </table>
+
+            <div id="noFilterResult" class="filter-empty">
+                Arama ölçütlerine uygun ürün bulunamadı.
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput =
+            document.getElementById("productSearch");
+
+        const categoryFilter =
+            document.getElementById("categoryFilter");
+
+        const stockFilter =
+            document.getElementById("stockFilter");
+
+        const rows =
+            document.querySelectorAll(".product-row");
+
+        const visibleCount =
+            document.getElementById("visibleProductCount");
+
+        const noResult =
+            document.getElementById("noFilterResult");
+
+        function filterProducts() {
+            const searchValue = searchInput.value
+                .trim()
+                .toLocaleLowerCase("tr-TR");
+
+            const selectedCategory = categoryFilter.value;
+            const selectedStatus = stockFilter.value;
+
+            let count = 0;
+
+            rows.forEach(function (row) {
+                const productText = row.dataset.search
+                    .toLocaleLowerCase("tr-TR");
+
+                const category = row.dataset.category;
+                const status = row.dataset.status;
+
+                const matchesSearch =
+                    productText.includes(searchValue);
+
+                const matchesCategory =
+                    selectedCategory === "" ||
+                    category === selectedCategory;
+
+                const matchesStatus =
+                    selectedStatus === "" ||
+                    status === selectedStatus;
+
+                const shouldShow =
+                    matchesSearch &&
+                    matchesCategory &&
+                    matchesStatus;
+
+                row.style.display = shouldShow ? "" : "none";
+
+                if (shouldShow) {
+                    count++;
+                }
+            });
+
+            visibleCount.textContent = count;
+
+            if (noResult) {
+                noResult.style.display =
+                    count === 0 ? "block" : "none";
+            }
+        }
+
+        searchInput.addEventListener("input", filterProducts);
+        categoryFilter.addEventListener("change", filterProducts);
+        stockFilter.addEventListener("change", filterProducts);
+    });
+</script>

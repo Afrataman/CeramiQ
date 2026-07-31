@@ -1,0 +1,111 @@
+﻿@model CeramiQ.Web.ViewModels.ProductionOrderUpdateViewModel
+
+@{
+    ViewData["Title"] = "Üretim Emrini Güncelle";
+}
+
+<div class="production-form-page">
+    <div class="production-form-heading">
+        <a asp-action="Index"
+           class="production-back-link">
+            ← Üretim emirlerine dön
+        </a>
+
+        <span class="eyebrow">ÜRETİM TAKİBİ</span>
+        <h1>Üretim Emrini Güncelle</h1>
+
+        <p>
+            Gerçekleşen üretimi, fireyi ve üretim
+            durumunu kaydedin.
+        </p>
+    </div>
+
+    <div class="production-update-summary">
+        <div>
+            <span>Emir Numarası</span>
+            <strong>@Model.OrderNumber</strong>
+        </div>
+
+        <div>
+            <span>Ürün</span>
+            <strong>@Model.ProductName</strong>
+        </div>
+
+        <div>
+            <span>Planlanan Miktar</span>
+            <strong>
+                @Model.PlannedQuantity.ToString("0.##")
+            </strong>
+        </div>
+    </div>
+
+    <form asp-action="Update"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="production-form-card">
+
+        <input asp-for="Id" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="production-validation-summary">
+        </div>
+
+        <div class="production-form-grid">
+            <div class="production-form-field">
+                <label asp-for="ProducedQuantity"></label>
+
+                <input asp-for="ProducedQuantity"
+                       type="number"
+                       min="0"
+                       step="0.01" />
+
+                <span asp-validation-for="ProducedQuantity"
+                      class="production-field-error">
+                </span>
+            </div>
+
+            <div class="production-form-field">
+                <label asp-for="ScrapQuantity"></label>
+
+                <input asp-for="ScrapQuantity"
+                       type="number"
+                       min="0"
+                       step="0.01" />
+
+                <span asp-validation-for="ScrapQuantity"
+                      class="production-field-error">
+                </span>
+            </div>
+
+            <div class="production-form-field">
+                <label asp-for="Status"></label>
+
+                <select asp-for="Status">
+                    <option value="Planlandı">Planlandı</option>
+                    <option value="Üretimde">Üretimde</option>
+                    <option value="Tamamlandı">Tamamlandı</option>
+                </select>
+
+                <span asp-validation-for="Status"
+                      class="production-field-error">
+                </span>
+            </div>
+        </div>
+
+        <div class="production-form-actions">
+            <a asp-action="Index"
+               class="production-secondary-button">
+                İptal
+            </a>
+
+            <button type="submit"
+                    class="production-primary-button">
+                Değişiklikleri Kaydet
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,107 @@
+﻿@model CeramiQ.Web.Models.AlertExplanationViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+
+    var alertSymbol = Model.AlertType switch
+    {
+        "stock" => "!",
+        "scrap" => "%",
+        "delay" => "⌛",
+        _ => "✦"
+    };
+}
+
+<div class="alert-explanation-page">
+
+    <a asp-controller="Home"
+       asp-action="Index"
+       class="back-to-dashboard">
+        ← Dashboard’a Dön
+    </a>
+
+    <section class="alert-explanation-hero
+                    alert-explanation-@Model.AlertType">
+
+        <span class="explanation-symbol">
+            @alertSymbol
+        </span>
+
+        <div>
+            <span class="eyebrow">AKILLI UYARI AÇIKLAMASI</span>
+
+            <h1>@Model.Title</h1>
+
+            <p>
+                Mevcut sistem verileri analiz edilerek bu açıklama
+                ve işlem önerisi oluşturuldu.
+            </p>
+        </div>
+
+        <span class="affected-record-badge">
+            @Model.AffectedRecordCount etkilenen kayıt
+        </span>
+    </section>
+
+    <section class="explanation-card-grid">
+
+        <article class="explanation-card">
+            <span class="explanation-card-number">01</span>
+
+            <h2>Bu Uyarı Ne Anlama Geliyor?</h2>
+
+            <p>
+                @Model.Explanation
+            </p>
+        </article>
+
+        <article class="explanation-card">
+            <span class="explanation-card-number">02</span>
+
+            <h2>Olası Neden</h2>
+
+            <p>
+                @Model.PossibleCause
+            </p>
+        </article>
+
+        <article class="explanation-card recommended-card">
+            <span class="explanation-card-number">03</span>
+
+            <h2>Önerilen İşlem</h2>
+
+            <p>
+                @Model.RecommendedAction
+            </p>
+        </article>
+
+    </section>
+
+    <div class="explanation-actions">
+
+        @if (Model.AlertType == "stock")
+        {
+            <a asp-controller="Products"
+               asp-action="Index"
+               class="primary-action">
+                Kritik Ürünleri İncele
+            </a>
+        }
+        else
+        {
+            <a asp-controller="ProductionOrders"
+               asp-action="Index"
+               class="primary-action">
+                Üretim Emirlerini İncele
+            </a>
+        }
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="secondary-action">
+            Genel Bakışa Dön
+        </a>
+
+    </div>
+
+</div>

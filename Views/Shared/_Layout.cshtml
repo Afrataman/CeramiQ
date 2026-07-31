@@ -1,0 +1,134 @@
+﻿@{
+    var currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - CeramiQ</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <aside class="sidebar">
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="brand">
+
+                <span class="brand-logo">CQ</span>
+
+                <span>
+                    <strong>CeramiQ</strong>
+                    <small>Üretim Yönetimi</small>
+                </span>
+            </a>
+
+            <nav class="sidebar-nav">
+                <p class="menu-title">ANA MENÜ</p>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="sidebar-link @(currentController == "Home" ? "active" : "")">
+
+                    <span class="nav-symbol">⌂</span>
+                    Genel Bakış
+                </a>
+
+                <a asp-controller="Products"
+                   asp-action="Index"
+                   class="sidebar-link @(currentController == "Products" ? "active" : "")">
+
+                    <span class="nav-symbol">▦</span>
+                    Ürünler
+                </a>
+
+                <p class="menu-title operation-title">OPERASYON</p>
+
+                <a href="#"
+                   onclick="return false;"
+                   class="sidebar-link disabled-link">
+
+                    <span class="nav-symbol">⇄</span>
+                    Stok Hareketleri
+                    <span class="soon-badge">Yakında</span>
+                </a>
+
+                <a asp-controller="ProductionOrders"
+                   asp-action="Index"
+                   class="sidebar-link">
+
+                    <span class="nav-symbol">◫</span>
+                    Üretim Emirleri
+                </a>
+
+                <a href="#"
+                   onclick="return false;"
+                   class="sidebar-link disabled-link">
+
+                    <span class="nav-symbol">△</span>
+                    Fire Takibi
+                    <span class="soon-badge">Yakında</span>
+                </a>
+
+                <a href="#"
+                   onclick="return false;"
+                   class="sidebar-link disabled-link">
+
+                    <span class="nav-symbol">✦</span>
+                    Akıllı Uyarılar
+                    <span class="soon-badge">Yakında</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-status">
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>Sistem aktif</strong>
+                    <small>Veritabanı bağlantısı hazır</small>
+                </div>
+            </div>
+        </aside>
+
+        <div class="page-wrapper">
+            <header class="topbar">
+                <div>
+                    <span class="topbar-label">CERAMIQ</span>
+                    <strong>Operasyon Paneli</strong>
+                </div>
+
+                <div class="user-area">
+                    <span class="live-dot"></span>
+                    Sistem Çevrimiçi
+                </div>
+            </header>
+
+            <main class="main-content">
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                CeramiQ · Seramik üretim ve stok yönetim sistemi
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

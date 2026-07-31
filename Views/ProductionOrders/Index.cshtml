@@ -1,0 +1,137 @@
+﻿@model IReadOnlyList<CeramiQ.Web.ViewModels.ProductionOrderListItemViewModel>
+
+@{
+    ViewData["Title"] = "Üretim Emirleri";
+}
+
+<div class="production-page-heading">
+    <div>
+        <span class="eyebrow">ÜRETİM TAKİBİ</span>
+        <h1>Üretim Emirleri</h1>
+
+        <p>
+            Planlanan ve gerçekleşen üretim süreçlerini takip edin.
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="production-primary-button">
+        + Yeni Üretim Emri
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="production-success-message">
+        @successMessage
+    </div>
+}
+
+<div class="production-orders-card">
+    <div class="table-responsive">
+        <table class="production-orders-table">
+            <thead>
+                <tr>
+                    <th>Emir Numarası</th>
+                    <th>Ürün</th>
+                    <th>Üretim Hattı</th>
+                    <th>Planlanan</th>
+                    <th>Üretilen</th>
+                    <th>Fire</th>
+                    <th>Teslim Tarihi</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="9">
+                            <div class="production-empty-state">
+                                <strong>
+                                    Henüz üretim emri bulunmuyor.
+                                </strong>
+
+                                <span>
+                                    İlk üretim emrini oluşturabilirsiniz.
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var order in Model)
+                    {
+                        var statusClass = order.Status switch
+                        {
+                            "Tamamlandı" => "status-completed",
+                            "Üretimde" => "status-active",
+                            _ => "status-planned"
+                        };
+
+                        <tr class="@(order.IsDelayed
+                                                        ? "delayed-order-row"
+                                                        : "")">
+
+                    <td>
+                        <strong>@order.OrderNumber</strong>
+                    </td>
+
+                            <td>
+                                <strong>@order.ProductName</strong>
+
+                                <span class="product-code">
+                                    @order.ProductCode
+                                </span>
+                            </td>
+
+                            <td>
+                                @order.ProductionLine
+                            </td>
+
+                            <td>
+                                @order.PlannedQuantity.ToString("0.##")
+                            </td>
+
+                            <td>
+                                @order.ProducedQuantity.ToString("0.##")
+                            </td>
+
+                            <td>
+                                @order.ScrapQuantity.ToString("0.##")
+                            </td>
+
+                            <td>
+                                @order.DueDate.ToString("dd.MM.yyyy")
+
+                        @if (order.IsDelayed)
+                                {
+                                    <span class="delayed-label">
+                                        Gecikti
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                <span class="order-status @statusClass">
+                                    @order.Status
+                                </span>
+                            </td>
+
+                            <td>
+                                <a asp-action="Update"
+                                   asp-route-id="@order.Id"
+                                   class="production-update-link">
+                                    Güncelle
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

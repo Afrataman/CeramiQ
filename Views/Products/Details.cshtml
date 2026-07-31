@@ -1,0 +1,95 @@
+﻿@model CeramiQ.Web.Models.Product
+
+@{
+    ViewData["Title"] = "Ürün Detayı";
+
+    var isCritical =
+        Model.StockQuantity <= Model.MinimumStockLevel;
+}
+
+<div class="form-page-heading">
+    <div>
+        <span class="eyebrow">ÜRÜN YÖNETİMİ</span>
+        <h1>Ürün Detayı</h1>
+
+        <p>
+            Ürünün kimlik ve stok bilgilerini inceleyin.
+        </p>
+    </div>
+
+    <a asp-action="Index" class="secondary-action">
+        ← Ürünlere Dön
+    </a>
+</div>
+
+<div class="product-detail-card">
+    <div class="product-detail-header">
+        <div class="detail-product-identity">
+            <span class="detail-product-icon">▦</span>
+
+            <div>
+                <span class="detail-code">@Model.ProductCode</span>
+                <h2>@Model.Name</h2>
+                <p>@Model.Category</p>
+            </div>
+        </div>
+
+        <span class="stock-badge
+              @(isCritical ? "critical" : "normal")">
+
+            @(isCritical ? "Kritik Stok" : "Stok Normal")
+        </span>
+    </div>
+
+    <div class="product-detail-grid">
+        <div class="detail-item">
+            <span>Ürün Kodu</span>
+            <strong>@Model.ProductCode</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Kategori</span>
+            <strong>@Model.Category</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Mevcut Stok</span>
+            <strong>
+                @Model.StockQuantity.ToString("0.##")
+                @Model.Unit
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Minimum Stok Seviyesi</span>
+            <strong>
+                @Model.MinimumStockLevel.ToString("0.##")
+                @Model.Unit
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Birim</span>
+            <strong>@Model.Unit</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Kayıt Tarihi</span>
+            <strong>
+                @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+            </strong>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a asp-action="Index" class="cancel-action">
+            Listeye Dön
+        </a>
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="primary-action">
+            Düzenle
+        </a>
+    </div>
+</div>

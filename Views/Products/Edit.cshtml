@@ -1,0 +1,150 @@
+﻿@model CeramiQ.Web.Models.Product
+
+@{
+    ViewData["Title"] = "Ürünü Düzenle";
+}
+
+<div class="form-page-heading">
+    <div>
+        <span class="eyebrow">ÜRÜN YÖNETİMİ</span>
+        <h1>Ürünü Düzenle</h1>
+
+        <p>
+            @Model.ProductCode kodlu ürünün bilgilerini güncelleyin.
+        </p>
+    </div>
+
+    <a asp-action="Index" class="secondary-action">
+        ← Ürünlere Dön
+    </a>
+</div>
+
+<div class="product-form-card">
+    <form asp-action="Edit" method="post">
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger"></div>
+
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="CreatedAt" type="hidden" />
+
+        <div class="form-section-heading">
+            <span class="form-section-icon">▦</span>
+
+            <div>
+                <h2>Ürün Bilgileri</h2>
+                <p>Ürünün temel bilgilerini güncelleyin</p>
+            </div>
+        </div>
+
+        <div class="product-form-grid">
+            <div class="form-group">
+                <label asp-for="ProductCode">Ürün Kodu</label>
+
+                <input asp-for="ProductCode"
+                       class="form-control" />
+
+                <span asp-validation-for="ProductCode"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Name">Ürün Adı</label>
+
+                <input asp-for="Name"
+                       class="form-control" />
+
+                <span asp-validation-for="Name"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Category">Kategori</label>
+
+                <input asp-for="Category"
+                       class="form-control"
+                       list="categoryOptions" />
+
+                <datalist id="categoryOptions">
+                    <option value="Duvar Karosu"></option>
+                    <option value="Zemin Karosu"></option>
+                    <option value="Porselen"></option>
+                    <option value="Dekor"></option>
+                </datalist>
+
+                <span asp-validation-for="Category"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Unit">Birim</label>
+
+                <select asp-for="Unit" class="form-select">
+                    <option value="">Birim seçin</option>
+                    <option value="Kutu">Kutu</option>
+                    <option value="Adet">Adet</option>
+                    <option value="Palet">Palet</option>
+                    <option value="Metrekare">Metrekare</option>
+                </select>
+
+                <span asp-validation-for="Unit"
+                      class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-section-heading stock-section-heading">
+            <span class="form-section-icon">≋</span>
+
+            <div>
+                <h2>Stok Bilgileri</h2>
+                <p>Mevcut ve minimum stok değerleri</p>
+            </div>
+        </div>
+
+        <div class="product-form-grid">
+            <div class="form-group">
+                <label asp-for="StockQuantity">
+                    Mevcut Stok
+                </label>
+
+                <input asp-for="StockQuantity"
+                       class="form-control"
+                       type="number"
+                       min="0" />
+
+                <span asp-validation-for="StockQuantity"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinimumStockLevel">
+                    Minimum Stok Seviyesi
+                </label>
+
+                <input asp-for="MinimumStockLevel"
+                       class="form-control"
+                       type="number"
+                       min="0" />
+
+                <span asp-validation-for="MinimumStockLevel"
+                      class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="cancel-action">
+                Vazgeç
+            </a>
+
+            <button type="submit" class="primary-action">
+                <span>✓</span>
+                Değişiklikleri Kaydet
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
