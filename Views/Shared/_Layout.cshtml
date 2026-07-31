@@ -53,7 +53,13 @@
                     <span class="nav-symbol">▦</span>
                     Ürünler
                 </a>
+                <a asp-controller="NaturalLanguageQuery"
+                   asp-action="Index"
+                   class="sidebar-link @(currentController == "NaturalLanguageQuery" ? "active" : "")">
 
+                    <span class="nav-symbol">?</span>
+                    CeramiQ'ya Sor
+                </a>
                 <p class="menu-title operation-title">OPERASYON</p>
 
                 <a href="#"

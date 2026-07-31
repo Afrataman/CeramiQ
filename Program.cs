@@ -1,9 +1,11 @@
 using CeramiQ.Web.Data;
 using Microsoft.EntityFrameworkCore;
+using CeramiQ.Web.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<SafeSqlQueryService>();
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
