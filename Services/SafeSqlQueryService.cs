@@ -9,11 +9,7 @@ namespace CeramiQ.Web.Services
     {
         private readonly ApplicationDbContext _context;
 
-        public SafeSqlQueryService(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-        private readonly string[] forbiddenKeywords =
+        private static readonly string[] ForbiddenKeywords =
         {
             "INSERT",
             "UPDATE",
@@ -23,10 +19,29 @@ namespace CeramiQ.Web.Services
             "CREATE",
             "TRUNCATE",
             "EXEC",
-            "MERGE"
+            "EXECUTE",
+            "MERGE",
+            "GRANT",
+            "REVOKE",
+            "DENY",
+            "BACKUP",
+            "RESTORE",
+            "DBCC",
+            "WAITFOR",
+            "OPENROWSET",
+            "OPENDATASOURCE",
+            "BULK",
+            "INTO"
         };
 
-        public bool IsSafeQuery(string sql, out string errorMessage)
+        public SafeSqlQueryService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public bool IsSafeQuery(
+            string sql,
+            out string errorMessage)
         {
             errorMessage = string.Empty;
 
@@ -38,23 +53,34 @@ namespace CeramiQ.Web.Services
 
             string normalizedSql = sql.Trim();
 
+            if (normalizedSql.Length > 5000)
+            {
+                errorMessage = "SQL sorgusu izin verilen uzunluğu aşıyor.";
+                return false;
+            }
+
             if (!normalizedSql.StartsWith(
                     "SELECT",
                     StringComparison.OrdinalIgnoreCase))
             {
-                errorMessage = "Yalnızca SELECT sorgularına izin verilir.";
+                errorMessage =
+                    "Güvenlik nedeniyle yalnızca SELECT sorgularına izin verilir.";
+
                 return false;
             }
 
             if (normalizedSql.Contains(";") ||
                 normalizedSql.Contains("--") ||
-                normalizedSql.Contains("/*"))
+                normalizedSql.Contains("/*") ||
+                normalizedSql.Contains("*/"))
             {
-                errorMessage = "Sorguda güvenli olmayan karakterler bulundu.";
+                errorMessage =
+                    "Sorguda güvenli olmayan karakterler bulundu.";
+
                 return false;
             }
 
-            foreach (string keyword in forbiddenKeywords)
+            foreach (string keyword in ForbiddenKeywords)
             {
                 bool containsKeyword = Regex.IsMatch(
                     normalizedSql,
@@ -72,10 +98,13 @@ namespace CeramiQ.Web.Services
 
             return true;
         }
+
         public async Task<(
-    List<string> Columns,
-    List<Dictionary<string, string>> Rows)>
-    ExecuteSelectQueryAsync(string sql)
+            List<string> Columns,
+            List<Dictionary<string, string>> Rows)>
+            ExecuteSelectQueryAsync(
+                string sql,
+                CancellationToken cancellationToken = default)
         {
             if (!IsSafeQuery(sql, out string errorMessage))
             {
@@ -85,40 +114,81 @@ namespace CeramiQ.Web.Services
             List<string> columns = new();
             List<Dictionary<string, string>> rows = new();
 
-            var connection = _context.Database.GetDbConnection();
+            var connection =
+                _context.Database.GetDbConnection();
 
             bool shouldCloseConnection =
                 connection.State != ConnectionState.Open;
 
             if (shouldCloseConnection)
             {
-                await connection.OpenAsync();
+                await connection.OpenAsync(cancellationToken);
             }
 
             try
             {
-                await using var command = connection.CreateCommand();
+                await using var command =
+                    connection.CreateCommand();
 
                 command.CommandText = sql;
+                command.CommandType = CommandType.Text;
                 command.CommandTimeout = 10;
 
                 await using var reader =
-                    await command.ExecuteReaderAsync();
+                    await command.ExecuteReaderAsync(
+                        cancellationToken);
 
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
-                    columns.Add(reader.GetName(i));
+                    string columnName = reader.GetName(i);
+
+                    if (string.IsNullOrWhiteSpace(columnName))
+                    {
+                        columnName = $"Column{i + 1}";
+                    }
+
+                    string originalName = columnName;
+                    int number = 2;
+
+                    while (columns.Contains(
+                        columnName,
+                        StringComparer.OrdinalIgnoreCase))
+                    {
+                        columnName =
+                            $"{originalName}_{number}";
+
+                        number++;
+                    }
+
+                    columns.Add(columnName);
                 }
 
-                while (await reader.ReadAsync())
+                while (await reader.ReadAsync(
+                    cancellationToken))
                 {
                     Dictionary<string, string> row = new();
 
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    for (int i = 0;
+                         i < reader.FieldCount;
+                         i++)
                     {
-                        string value = reader.IsDBNull(i)
-                            ? "-"
-                            : Convert.ToString(reader.GetValue(i)) ?? "-";
+                        string value;
+
+                        if (reader.IsDBNull(i))
+                        {
+                            value = "-";
+                        }
+                        else if (reader.GetValue(i) is DateTime date)
+                        {
+                            value = date.ToString(
+                                "dd.MM.yyyy HH:mm:ss");
+                        }
+                        else
+                        {
+                            value =
+                                Convert.ToString(
+                                    reader.GetValue(i)) ?? "-";
+                        }
 
                         row[columns[i]] = value;
                     }

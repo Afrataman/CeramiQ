@@ -5,6 +5,9 @@ namespace CeramiQ.Web.ViewModels
     public class NaturalLanguageQueryViewModel
     {
         [Required(ErrorMessage = "Lütfen bir soru yazınız.")]
+        [StringLength(
+            200,
+            ErrorMessage = "Soru en fazla 200 karakter olabilir.")]
         [Display(Name = "CeramiQ'ya Sor")]
         public string Question { get; set; } = string.Empty;
 
@@ -12,14 +15,10 @@ namespace CeramiQ.Web.ViewModels
 
         public string Explanation { get; set; } = string.Empty;
 
-        
-        
-       
         public string ErrorMessage { get; set; } = string.Empty;
+
         public List<string> ResultColumns { get; set; } = new();
 
         public List<Dictionary<string, string>> ResultRows { get; set; } = new();
     }
-
-
 }

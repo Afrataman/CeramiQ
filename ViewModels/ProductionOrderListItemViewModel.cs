@@ -15,7 +15,11 @@
         public decimal PlannedQuantity { get; set; }
 
         public decimal ProducedQuantity { get; set; }
+
         public decimal ScrapQuantity { get; set; }
+
+        public DateTime StartDate { get; set; }
+
         public DateTime DueDate { get; set; }
 
         public string Status { get; set; } = string.Empty;

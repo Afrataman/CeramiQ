@@ -6,44 +6,115 @@
 
 <div class="container mt-4">
     <div class="card shadow-sm">
-        <div class="card-body">
+        <div class="card-body p-4">
             <h2>CeramiQ'ya Sor</h2>
 
             <p class="text-muted">
-                Ürünler ve üretim siparişleri hakkında doğal dilde soru yazabilirsiniz.
+                Ürünler, stoklar ve üretim emirleri hakkında
+                doğal dilde soru yazabilirsiniz.
             </p>
+
+            <div class="alert alert-light border mb-4">
+                <strong>Örnek sorular</strong>
+
+                <p class="text-muted small mt-1 mb-3">
+                    Bir örneğe tıklayarak soru kutusunu
+                    otomatik doldurabilirsiniz.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button"
+                            class="btn btn-outline-primary example-question"
+                            data-question="Stoğu 50'den az olan ürünleri göster">
+                        Düşük stok
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-primary example-question"
+                            data-question="Kritik stoklu ürünleri göster">
+                        Kritik stok
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-primary example-question"
+                            data-question="Stokta olmayan ürünleri göster">
+                        Stokta olmayanlar
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-primary example-question"
+                            data-question="Geciken üretim emirlerini göster">
+                        Geciken emirler
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-primary example-question"
+                            data-question="Fire oranı yüzde 20'den yüksek üretim emirlerini göster">
+                        Fire %20 üzeri
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-primary example-question"
+                            data-question="Üretimdeki üretim emirlerini göster">
+                        Üretimdeki emirler
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-primary example-question"
+                            data-question="Kaç ürün var">
+                        Ürün sayısı
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-primary example-question"
+                            data-question="Toplam stok miktarını göster">
+                        Toplam stok
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-primary example-question"
+                            data-question="Bütün ürünleri göster">
+                        Bütün ürünler
+                    </button>
+                </div>
+            </div>
 
             <form asp-controller="NaturalLanguageQuery"
                   asp-action="Index"
                   method="post">
 
                 <div class="mb-3">
-                    <label asp-for="Question" class="form-label"></label>
+                    <label asp-for="Question"
+                           class="form-label">
+                    </label>
 
                     <textarea asp-for="Question"
                               class="form-control"
-                              rows="4"
-                              placeholder="Örneğin: Stoğu 50'den az olan ürünleri göster.">
-                    </textarea>
+                              rows="3"
+                              maxlength="200"
+                              placeholder="Örneğin: Stoğu 50'den az olan ürünleri göster."></textarea>
 
                     <span asp-validation-for="Question"
                           class="text-danger">
                     </span>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
+                <button type="submit"
+                        class="btn btn-primary">
                     Sorguyu Oluştur
                 </button>
             </form>
 
-            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            @if (!string.IsNullOrWhiteSpace(
+                        Model.ErrorMessage))
             {
-                <div class="alert alert-danger mt-3">
+                <div class="alert alert-danger mt-4">
                     @Model.ErrorMessage
                 </div>
             }
 
-            @if (!string.IsNullOrWhiteSpace(Model.GeneratedSql))
+            @if (!string.IsNullOrWhiteSpace(
+                        Model.GeneratedSql))
             {
                 <div class="mt-4">
                     <h5>Oluşturulan SQL</h5>
@@ -52,48 +123,55 @@
                 </div>
             }
 
-            @if (!string.IsNullOrWhiteSpace(Model.Explanation))
+            @if (!string.IsNullOrWhiteSpace(
+                        Model.Explanation))
             {
                 <div class="alert alert-info mt-3">
                     @Model.Explanation
-                    @if (Model.ResultColumns.Count > 0)
+                </div>
+            }
+
+            @if (Model.ResultColumns.Count > 0)
+            {
+                <div class="mt-4">
+                    <h5>Sorgu Sonucu</h5>
+
+                    @if (Model.ResultRows.Count > 0)
                     {
-                        <div class="mt-4">
-                            <h5>Sorgu Sonucu</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        @foreach (string column
+                                                                        in Model.ResultColumns)
+                                        {
+                                            <th>@column</th>
+                                        }
+                                    </tr>
+                                </thead>
 
-                            @if (Model.ResultRows.Count > 0)
-                            {
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-striped">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                @foreach (string column in Model.ResultColumns)
-                                                {
-                                                    <th>@column</th>
-                                                }
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>
-                                            @foreach (Dictionary<string, string> row in Model.ResultRows)
+                                <tbody>
+                                    @foreach (
+                                                                Dictionary<string, string> row
+                                                                in Model.ResultRows)
+                                    {
+                                        <tr>
+                                            @foreach (
+                                                                            string column
+                                                                            in Model.ResultColumns)
                                             {
-                                                <tr>
-                                                    @foreach (string column in Model.ResultColumns)
-                                                    {
-                                                        <td>@row[column]</td>
-                                                    }
-                                                </tr>
+                                                <td>@row[column]</td>
                                             }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="alert alert-warning">
-                                    Bu sorguya uygun kayıt bulunamadı.
-                                </div>
-                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            Bu sorguya uygun kayıt bulunamadı.
                         </div>
                     }
                 </div>
@@ -104,4 +182,21 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const exampleButtons =
+            document.querySelectorAll(".example-question");
+
+        const questionInput =
+            document.getElementById("Question");
+
+        exampleButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                questionInput.value =
+                    button.getAttribute("data-question");
+
+                questionInput.focus();
+            });
+        });
+    </script>
 }
