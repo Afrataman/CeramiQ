@@ -49,10 +49,13 @@ namespace CeramiQ.Web.Controllers
                         order.Status == "Üretimde"),
 
                 HighScrapOrderCount =
-                    productionOrders.Count(order =>
-                        order.PlannedQuantity > 0 &&
-                        order.ScrapQuantity * 100 >=
-                        order.PlannedQuantity * 10),
+    productionOrders.Count(order =>
+        order.ProducedQuantity +
+        order.ScrapQuantity > 0 &&
+
+        order.ScrapQuantity * 100 >=
+        (order.ProducedQuantity +
+         order.ScrapQuantity) * 10),
 
                 DelayedProductionOrderCount =
                     productionOrders.Count(order =>
@@ -94,11 +97,14 @@ namespace CeramiQ.Web.Controllers
             else if (type == "scrap")
             {
                 var affectedCount = await _context.ProductionOrders
-                    .AsNoTracking()
-                    .CountAsync(order =>
-                        order.PlannedQuantity > 0 &&
-                        order.ScrapQuantity * 100 >=
-                        order.PlannedQuantity * 10);
+    .AsNoTracking()
+    .CountAsync(order =>
+        order.ProducedQuantity +
+        order.ScrapQuantity > 0 &&
+
+        order.ScrapQuantity * 100 >=
+        (order.ProducedQuantity +
+         order.ScrapQuantity) * 10);
 
                 model.AlertType = "scrap";
                 model.Title = "Yüksek Fire Uyarýsý";
