@@ -15,7 +15,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var database = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
 
+    database.Database.Migrate();
+}
 
 
 // Configure the HTTP request pipeline.
