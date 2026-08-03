@@ -72,7 +72,7 @@
 
                 <a asp-controller="ProductionOrders"
                    asp-action="Index"
-                   class="sidebar-link">
+                   class="sidebar-link @(currentController == "ProductionOrders" ? "active" : "")">
 
                     <span class="nav-symbol">◫</span>
                     Üretim Emirleri
@@ -86,15 +86,13 @@
                     Fire Takibi
                 </a>
 
-                <a href="#"
-                   onclick="return false;"
-                   class="sidebar-link disabled-link">
+                <a asp-controller="SmartAlerts"
+                   asp-action="Index"
+                   class="sidebar-link @(currentController == "SmartAlerts" ? "active" : "")">
 
                     <span class="nav-symbol">✦</span>
                     Akıllı Uyarılar
-                    <span class="soon-badge">Yakında</span>
                 </a>
-            </nav>
 
             <div class="sidebar-status">
                 <span class="status-dot"></span>

@@ -1,0 +1,357 @@
+﻿@model CeramiQ.Web.ViewModels.SmartAlertsViewModel
+
+@{
+    ViewData["Title"] = "Akıllı Uyarılar";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between
+                align-items-start mb-4">
+        <div>
+            <span class="text-primary fw-semibold small">
+                AKILLI ANALİZ
+            </span>
+
+            <h2 class="mt-1 mb-1">Akıllı Uyarılar</h2>
+
+            <p class="text-muted mb-0">
+                Kritik stok, yüksek fire ve geciken üretim
+                kayıtlarını tek ekrandan inceleyin.
+            </p>
+        </div>
+
+        <span class="badge bg-danger fs-6">
+            @Model.TotalAlertCount uyarı
+        </span>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Kritik Stok</p>
+
+                    <h3 class="text-danger mb-0">
+                        @Model.CriticalStocks.Count
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Yüksek Fire</p>
+
+                    <h3 class="text-danger mb-0">
+                        @Model.HighScrapOrders.Count
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Geciken Üretim</p>
+
+                    <h3 class="text-warning mb-0">
+                        @Model.DelayedOrders.Count
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.TotalAlertCount == 0)
+    {
+        <div class="alert alert-success">
+            <h5 class="mb-1">Her şey yolunda görünüyor.</h5>
+
+            <p class="mb-0">
+                Şu anda ilgilenmeniz gereken kritik bir kayıt
+                bulunmuyor.
+            </p>
+        </div>
+    }
+    else
+    {
+        <section class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between
+                                align-items-center">
+                    <div>
+                        <h4 class="mb-1">Kritik Stoklar</h4>
+
+                        <small class="text-muted">
+                            Minimum stok seviyesine ulaşan ürünler
+                        </small>
+                    </div>
+
+                    <a asp-controller="Home"
+                       asp-action="ExplainAlert"
+                       asp-route-type="stock"
+                       class="btn btn-sm btn-outline-primary">
+                        ✦ AI ile Açıkla
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                @if (Model.CriticalStocks.Count == 0)
+                {
+                    <p class="text-muted p-4 mb-0">
+                        Kritik stok kaydı bulunmuyor.
+                    </p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover
+                                              align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ürün</th>
+                                    <th>Mevcut Stok</th>
+                                    <th>Minimum Seviye</th>
+                                    <th>Durum</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var product
+                                                        in Model.CriticalStocks)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>
+                                                @product.ProductName
+                                            </strong>
+
+                                            <small class="d-block
+                                                                      text-muted">
+                                                @product.ProductCode
+                                            </small>
+                                        </td>
+
+                                        <td>
+                                            @product.StockQuantity.ToString("N2")
+                                            @product.Unit
+                                        </td>
+
+                                        <td>
+                                            @product.MinimumStockLevel.ToString("N2")
+                                            @product.Unit
+                                        </td>
+
+                                        <td>
+                                            <span class="badge bg-danger">
+                                                Kritik
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <a asp-controller="Products"
+                                               asp-action="Details"
+                                               asp-route-id="@product.ProductId"
+                                               class="btn btn-sm
+                                                                  btn-outline-secondary">
+                                                İncele
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between
+                                align-items-center">
+                    <div>
+                        <h4 class="mb-1">Yüksek Fireli Emirler</h4>
+
+                        <small class="text-muted">
+                            Fire oranı yüzde 10 veya üzerindeki emirler
+                        </small>
+                    </div>
+
+                    <a asp-controller="Home"
+                       asp-action="ExplainAlert"
+                       asp-route-type="scrap"
+                       class="btn btn-sm btn-outline-primary">
+                        ✦ AI ile Açıkla
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                @if (Model.HighScrapOrders.Count == 0)
+                {
+                    <p class="text-muted p-4 mb-0">
+                        Yüksek fireli üretim emri bulunmuyor.
+                    </p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover
+                                              align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Emir Numarası</th>
+                                    <th>Ürün</th>
+                                    <th>Üretim Hattı</th>
+                                    <th>Fire</th>
+                                    <th>Fire Oranı</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var order
+                                                        in Model.HighScrapOrders)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>
+                                                @order.OrderNumber
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            @order.ProductName
+
+                                            <small class="d-block
+                                                                      text-muted">
+                                                @order.ProductCode
+                                            </small>
+                                        </td>
+
+                                        <td>@order.ProductionLine</td>
+
+                                        <td class="text-danger">
+                                            @order.ScrapQuantity.ToString("N2")
+                                        </td>
+
+                                        <td>
+                                            <span class="badge bg-danger">
+                                                %@order.ScrapRate.ToString("N2")
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <a asp-controller="ProductionOrders"
+                                               asp-action="Update"
+                                               asp-route-id="@order.OrderId"
+                                               class="btn btn-sm
+                                                                  btn-outline-secondary">
+                                                İncele
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between
+                                align-items-center">
+                    <div>
+                        <h4 class="mb-1">Geciken Üretim Emirleri</h4>
+
+                        <small class="text-muted">
+                            Teslim tarihi geçen tamamlanmamış emirler
+                        </small>
+                    </div>
+
+                    <a asp-controller="Home"
+                       asp-action="ExplainAlert"
+                       asp-route-type="delay"
+                       class="btn btn-sm btn-outline-primary">
+                        ✦ AI ile Açıkla
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                @if (Model.DelayedOrders.Count == 0)
+                {
+                    <p class="text-muted p-4 mb-0">
+                        Geciken üretim emri bulunmuyor.
+                    </p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover
+                                              align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Emir Numarası</th>
+                                    <th>Ürün</th>
+                                    <th>Üretim Hattı</th>
+                                    <th>Teslim Tarihi</th>
+                                    <th>Gecikme</th>
+                                    <th>Durum</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var order
+                                                        in Model.DelayedOrders)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>
+                                                @order.OrderNumber
+                                            </strong>
+                                        </td>
+
+                                        <td>@order.ProductName</td>
+
+                                        <td>@order.ProductionLine</td>
+
+                                        <td>
+                                            @order.DueDate.ToString("dd.MM.yyyy")
+                                        </td>
+
+                                        <td>
+                                            <span class="badge bg-warning
+                                                                     text-dark">
+                                                @order.DelayDayCount gün
+                                            </span>
+                                        </td>
+
+                                        <td>@order.Status</td>
+
+                                        <td>
+                                            <a asp-controller="ProductionOrders"
+                                               asp-action="Update"
+                                               asp-route-id="@order.OrderId"
+                                               class="btn btn-sm
+                                                                  btn-outline-secondary">
+                                                İncele
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+</div>
