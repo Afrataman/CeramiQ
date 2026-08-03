@@ -1,0 +1,164 @@
+﻿@model CeramiQ.Web.ViewModels.StockMovementIndexViewModel
+
+@{
+    ViewData["Title"] = "Stok Hareketleri";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <span class="text-primary fw-semibold small">
+                STOK YÖNETİMİ
+            </span>
+
+            <h2 class="mt-1 mb-1">Stok Hareketleri</h2>
+
+            <p class="text-muted mb-0">
+                Ürünlerin stok giriş ve çıkış geçmişini yönetin.
+            </p>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary">
+            + Yeni Stok Hareketi
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form method="get"
+                  asp-action="Index"
+                  class="row g-3 align-items-end">
+
+                <div class="col-md-5">
+                    <label asp-for="ProductId" class="form-label">
+                        Ürün
+                    </label>
+
+                    <select asp-for="ProductId"
+                            asp-items="Model.Products"
+                            class="form-select">
+                        <option value="">Tüm ürünler</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="MovementType" class="form-label">
+                        Hareket Türü
+                    </label>
+
+                    <select asp-for="MovementType" class="form-select">
+                        <option value="">Tüm hareketler</option>
+                        <option value="Giriş">Stok Girişi</option>
+                        <option value="Çıkış">Stok Çıkışı</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">
+                        Filtrele
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary ms-2">
+                        Temizle
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            @if (Model.Movements.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>İşlem Tarihi</th>
+                                <th>Ürün Kodu</th>
+                                <th>Ürün</th>
+                                <th>Hareket</th>
+                                <th>Miktar</th>
+                                <th>Açıklama</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var movement in Model.Movements)
+                            {
+                                <tr>
+                                    <td>
+                                        @movement.CreatedAt.ToString(
+                                        "dd.MM.yyyy HH:mm")
+                            </td>
+
+                            <td>
+                                <strong>@movement.ProductCode</strong>
+                            </td>
+
+                            <td>@movement.ProductName</td>
+
+                            <td>
+                                @if (movement.MovementType == "Giriş")
+                                        {
+                                            <span class="badge bg-success">
+                                                Stok Girişi
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                Stok Çıkışı
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            @movement.Quantity.ToString("N2")
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        @if (string.IsNullOrWhiteSpace(
+                                                                        movement.Description))
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                        else
+                                        {
+                                            @movement.Description
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center p-5">
+                    <h5>Stok hareketi bulunamadı</h5>
+
+                    <p class="text-muted">
+                        Yeni bir stok giriş veya çıkış işlemi
+                        oluşturabilirsiniz.
+                    </p>
+
+                    <a asp-action="Create" class="btn btn-primary">
+                        İlk Hareketi Oluştur
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

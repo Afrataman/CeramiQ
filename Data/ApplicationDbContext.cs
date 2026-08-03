@@ -12,10 +12,13 @@ namespace CeramiQ.Web.Data
         }
 
         public DbSet<Product> Products { get; set; }
+
         public DbSet<ProductionOrder> ProductionOrders { get; set; }
 
+        public DbSet<StockMovement> StockMovements { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(
+            ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
@@ -28,6 +31,18 @@ namespace CeramiQ.Web.Data
                 .WithMany()
                 .HasForeignKey(order => order.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StockMovement>()
+                .HasOne<Product>()
+                .WithMany()
+                .HasForeignKey(movement => movement.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StockMovement>()
+                .HasIndex(movement => movement.ProductId);
+
+            modelBuilder.Entity<StockMovement>()
+                .HasIndex(movement => movement.CreatedAt);
         }
     }
 }

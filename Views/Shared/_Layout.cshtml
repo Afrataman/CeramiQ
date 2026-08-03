@@ -62,13 +62,12 @@
                 </a>
                 <p class="menu-title operation-title">OPERASYON</p>
 
-                <a href="#"
-                   onclick="return false;"
-                   class="sidebar-link disabled-link">
+                <a asp-controller="StockMovements"
+                   asp-action="Index"
+                   class="sidebar-link @(currentController == "StockMovements" ? "active" : "")">
 
                     <span class="nav-symbol">⇄</span>
                     Stok Hareketleri
-                    <span class="soon-badge">Yakında</span>
                 </a>
 
                 <a asp-controller="ProductionOrders"
