@@ -299,26 +299,66 @@
                 Dashboard analizlerinin başlayabilmesi için
                 sisteme ilk ürününüzü ekleyin.
             </p>
+
+            <a asp-controller="Products"
+               asp-action="Create"
+               class="secondary-action">
+                İlk Ürünü Ekle →
+            </a>
+        }
+        else if (Model.DelayedProductionOrderCount > 0)
+        {
+            <p>
+                @Model.DelayedProductionOrderCount üretim emrinin
+                teslim tarihi geçti. Geciken emirlerin üretim
+                önceliğini kontrol edin.
+            </p>
+
+            <a asp-controller="SmartAlerts"
+               asp-action="Index"
+               class="secondary-action">
+                Geciken Emirleri İncele →
+            </a>
+        }
+        else if (Model.HighScrapOrderCount > 0)
+        {
+            <p>
+                @Model.HighScrapOrderCount üretim emrinde yüksek
+                fire oranı tespit edildi. Üretim koşullarını
+                kontrol edin.
+            </p>
+
+            <a asp-controller="SmartAlerts"
+               asp-action="Index"
+               class="secondary-action">
+                Fire Uyarılarını İncele →
+            </a>
         }
         else if (Model.CriticalStockCount > 0)
         {
             <p>
                 @Model.CriticalStockCount ürün minimum stok
-                seviyesinin altında. Stokları kontrol edin.
+                seviyesinde. Stok ihtiyaçlarını kontrol edin.
             </p>
+
+            <a asp-controller="SmartAlerts"
+               asp-action="Index"
+               class="secondary-action">
+                Kritik Stokları İncele →
+            </a>
         }
         else
         {
             <p>
-                Stok seviyeleri şu anda normal görünüyor.
-                Kritik işlem gerektiren bir ürün bulunmuyor.
+                Stok ve üretim verileri normal görünüyor.
+                Şu anda öncelikli işlem gerektiren bir durum bulunmuyor.
             </p>
-        }
 
-        <a asp-controller="Products"
-           asp-action="Index"
-           class="secondary-action">
-            Ürünleri İncele →
-        </a>
+            <a asp-controller="Products"
+               asp-action="Index"
+               class="secondary-action">
+                Ürünleri İncele →
+            </a>
+        }
     </div>
 </section>
