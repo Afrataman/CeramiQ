@@ -1732,11 +1732,19 @@ if (isDuplicate) {
             ${statusText}
         </span>
 
-        <button type="button"
-                class="delete-scrap-button"
-                data-record-id="${recordId}">
-            Sil
-        </button>
+        <div class="scrap-record-buttons">
+    <button type="button"
+            class="edit-scrap-button"
+            data-record-id="${recordId}">
+        Düzenle
+    </button>
+
+    <button type="button"
+            class="delete-scrap-button"
+            data-record-id="${recordId}">
+        Sil
+    </button>
+</div>
     </div>
 </td>
             `;
@@ -1976,6 +1984,7 @@ function getSavedScrapRecords() {
     }
 }
 
+
 function saveScrapRecord(record) {
     const records = getSavedScrapRecords();
 
@@ -1986,6 +1995,8 @@ function saveScrapRecord(record) {
         JSON.stringify(records)
     );
 }
+
+
 function loadSavedScrapRecords() {
     const records = getSavedScrapRecords();
 
@@ -2012,36 +2023,44 @@ function loadSavedScrapRecords() {
                 .replace(".", ",");
 
         newRow.innerHTML = `
-    <td>${orderNumber}</td>
-    <td>${product}</td>
-    <td>${productionLine}</td>
+            <td>${record.orderNumber}</td>
+            <td>${record.product}</td>
+            <td>${record.productionLine}</td>
 
-    <td>
-        ${Number(produced)
-                .toLocaleString("tr-TR")} Kutu
-    </td>
+            <td>
+                ${Number(record.produced)
+                    .toLocaleString("tr-TR")} Kutu
+            </td>
 
-    <td>
-        ${Number(scrap)
-                .toLocaleString("tr-TR")} Kutu
-    </td>
+            <td>
+                ${Number(record.scrap)
+                    .toLocaleString("tr-TR")} Kutu
+            </td>
 
-    <td>%${formattedRate}</td>
+            <td>%${formattedRate}</td>
 
-    <td>
-        <div class="scrap-row-actions">
-            <span class="status ${statusClass}">
-                ${statusText}
-            </span>
+            <td>
+                <div class="scrap-row-actions">
+                    <span class="status ${record.statusClass}">
+                        ${record.statusText}
+                    </span>
 
-            <button type="button"
-                    class="delete-scrap-button"
-                    data-record-id="${recordId}">
-                Sil
-            </button>
-        </div>
-    </td>
-`;
+                    <div class="scrap-record-buttons">
+                        <button type="button"
+                                class="edit-scrap-button"
+                                data-record-id="${record.id}">
+                            Düzenle
+                        </button>
+
+                        <button type="button"
+                                class="delete-scrap-button"
+                                data-record-id="${record.id}">
+                            Sil
+                        </button>
+                    </div>
+                </div>
+            </td>
+        `;
 
         scrapTableBody.prepend(newRow);
 
@@ -2114,3 +2133,246 @@ document.addEventListener(
         window.location.reload();
     }
 );
+
+
+// ----------------------------------------------------
+// FİRE KAYDI DÜZENLEME
+// ----------------------------------------------------
+
+document.addEventListener(
+    "click",
+    function (event) {
+        const editButton =
+            event.target.closest(".edit-scrap-button");
+
+        if (!editButton) {
+            return;
+        }
+
+        const recordId =
+            editButton.dataset.recordId;
+
+        const records =
+            getSavedScrapRecords();
+
+        const record =
+            records.find(function (item) {
+                return String(item.id) === recordId;
+            });
+
+        if (!record) {
+            showToast("Düzenlenecek kayıt bulunamadı.");
+            return;
+        }
+
+        showEditScrapForm(record);
+    }
+);
+
+function showEditScrapForm(record) {
+    actionModalTitle.textContent =
+        "Fire Kaydını Düzenle";
+
+    actionModalBody.innerHTML = `
+        <form id="editScrapForm"
+              class="demo-form">
+
+            <label>
+                Emir Numarası
+
+                <input id="editScrapOrderNumber"
+                       type="text"
+                       value="${record.orderNumber}"
+                       required>
+            </label>
+
+            <label>
+                Ürün
+
+                <input id="editScrapProduct"
+                       type="text"
+                       value="${record.product}"
+                       required>
+            </label>
+
+            <label>
+                Üretim Hattı
+
+                <select id="editScrapProductionLine">
+                    <option value="Hat 1">Hat 1</option>
+                    <option value="Hat 2">Hat 2</option>
+                    <option value="Hat 3">Hat 3</option>
+                    <option value="Hat 4">Hat 4</option>
+                </select>
+            </label>
+
+            <label>
+                Üretilen Miktar
+
+                <input id="editScrapProduced"
+                       type="number"
+                       min="1"
+                       value="${record.produced}"
+                       required>
+            </label>
+
+            <label>
+                Fire Miktarı
+
+                <input id="editScrapQuantity"
+                       type="number"
+                       min="0"
+                       value="${record.scrap}"
+                       required>
+            </label>
+
+            <button type="submit"
+                    class="primary-button">
+                Değişiklikleri Kaydet
+            </button>
+        </form>
+    `;
+
+    document
+        .getElementById("editScrapProductionLine")
+        .value = record.productionLine;
+
+    openActionModal();
+
+    const editForm =
+        document.getElementById("editScrapForm");
+
+    editForm.addEventListener(
+        "submit",
+        function (event) {
+            event.preventDefault();
+
+            const orderNumber =
+                document
+                    .getElementById(
+                        "editScrapOrderNumber"
+                    )
+                    .value
+                    .trim()
+                    .toUpperCase();
+
+            const product =
+                document
+                    .getElementById(
+                        "editScrapProduct"
+                    )
+                    .value
+                    .trim()
+                    .replace(/\s+/g, " ");
+
+            const productionLine =
+                document.getElementById(
+                    "editScrapProductionLine"
+                ).value;
+
+            const produced =
+                Number(
+                    document.getElementById(
+                        "editScrapProduced"
+                    ).value
+                );
+
+            const scrap =
+                Number(
+                    document.getElementById(
+                        "editScrapQuantity"
+                    ).value
+                );
+
+            const orderNumberPattern =
+                /^URE-\d{4}-\d{3}$/;
+
+            if (!orderNumberPattern.test(orderNumber)) {
+                showToast(
+                    "Emir numarası URE-2026-001 biçiminde olmalıdır."
+                );
+
+                return;
+            }
+
+            if (product.length < 3) {
+                showToast(
+                    "Lütfen geçerli bir ürün adı girin."
+                );
+
+                return;
+            }
+
+            if (scrap > produced) {
+                showToast(
+                    "Fire miktarı üretilen miktardan büyük olamaz."
+                );
+
+                return;
+            }
+
+            const records =
+                getSavedScrapRecords();
+
+            const isDuplicate =
+                records.some(function (item) {
+                    return (
+                        item.orderNumber === orderNumber &&
+                        String(item.id) !== String(record.id)
+                    );
+                });
+
+            if (isDuplicate) {
+                showToast(
+                    orderNumber +
+                    " numaralı üretim emri zaten bulunuyor."
+                );
+
+                return;
+            }
+
+            const scrapRate =
+                (scrap / produced) * 100;
+
+            let statusText = "Normal";
+            let statusClass = "normal";
+
+            if (scrapRate >= 10) {
+                statusText = "Yüksek Fire";
+                statusClass = "critical";
+            } else if (scrapRate >= 5) {
+                statusText = "Dikkat";
+                statusClass = "warning";
+            }
+
+            const updatedRecords =
+                records.map(function (item) {
+                    if (
+                        String(item.id) !==
+                        String(record.id)
+                    ) {
+                        return item;
+                    }
+
+                    return {
+                        id: item.id,
+                        orderNumber: orderNumber,
+                        product: product,
+                        productionLine: productionLine,
+                        produced: produced,
+                        scrap: scrap,
+                        scrapRate: scrapRate,
+                        statusText: statusText,
+                        statusClass: statusClass
+                    };
+                });
+
+            localStorage.setItem(
+                "ceramiqScrapRecords",
+                JSON.stringify(updatedRecords)
+            );
+
+            window.location.reload();
+        }
+    );
+}

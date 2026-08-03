@@ -1011,3 +1011,27 @@ tbody tr:last-child td {
         background: #dc2626;
         border-color: #dc2626;
     }
+
+
+
+    .scrap-record-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.edit-scrap-button {
+    padding: 7px 11px;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+}
+
+.edit-scrap-button:hover {
+    color: #ffffff;
+    background: #2563eb;
+    border-color: #2563eb;
+}
