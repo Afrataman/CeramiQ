@@ -2,6 +2,7 @@
 using CeramiQ.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
+
 namespace CeramiQ.Web.Controllers
 {
     public class NaturalLanguageQueryController : Controller
@@ -22,10 +23,11 @@ namespace CeramiQ.Web.Controllers
 
             return View(model);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(
-        NaturalLanguageQueryViewModel model)
+            NaturalLanguageQueryViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -47,30 +49,73 @@ namespace CeramiQ.Web.Controllers
                 int.TryParse(numberMatch.Value, out int stockLimit))
             {
                 generatedSql =
-     $"SELECT TOP (100) * FROM Products WHERE StockQuantity < {stockLimit}";
+                    $"SELECT TOP (100) * FROM Products " +
+                    $"WHERE StockQuantity < {stockLimit}";
+
                 model.Explanation =
                     $"Bu sorgu stok miktarı {stockLimit}'den az olan ürünleri listeler.";
             }
-            else if (question.Contains("üretim") &&
-                     question.Contains("sipariş"))
+            else if (question.Contains("fire") &&
+          (question.Contains("yüksek") ||
+           question.Contains("fazla")))
             {
+                int fireLimit = 10;
+
+                if (numberMatch.Success &&
+                    int.TryParse(numberMatch.Value, out int enteredFireLimit))
+                {
+                    fireLimit = enteredFireLimit;
+                }
+
                 generatedSql =
-     "SELECT TOP (100) * FROM ProductionOrders";
+                    "SELECT TOP (100) *, " +
+                    "(ScrapQuantity * 100.0 / " +
+                    "NULLIF(ProducedQuantity + ScrapQuantity, 0)) AS FireOrani " +
+                    "FROM ProductionOrders " +
+                    "WHERE (ScrapQuantity * 100.0 / " +
+                    "NULLIF(ProducedQuantity + ScrapQuantity, 0)) >= " +
+                    fireLimit;
 
                 model.Explanation =
-                    "Bu sorgu bütün üretim siparişlerini listeler.";
+                    $"Bu sorgu fire oranı yüzde {fireLimit} veya daha yüksek " +
+                    "olan üretim emirlerini listeler.";
+            }
+            
+            else if (question.Contains("gecik") &&
+                     question.Contains("üretim") &&
+                     (question.Contains("emir") ||
+                      question.Contains("sipariş")))
+            {
+                generatedSql =
+                    "SELECT TOP (100) * FROM ProductionOrders " +
+                    "WHERE DueDate < CAST(GETDATE() AS date) " +
+                    "AND Status <> N'Tamamlandı'";
+
+                model.Explanation =
+                    "Bu sorgu teslim tarihi geçmiş ve henüz tamamlanmamış üretim emirlerini listeler.";
+            }
+            else if (question.Contains("üretim") &&
+                     (question.Contains("emir") ||
+                      question.Contains("sipariş")))
+            {
+                generatedSql =
+                    "SELECT TOP (100) * FROM ProductionOrders";
+
+                model.Explanation =
+                    "Bu sorgu bütün üretim emirlerini listeler.";
             }
             else if (question.Contains("ürün"))
             {
                 generatedSql =
-    "SELECT TOP (100) * FROM ProductionOrders";
+                    "SELECT TOP (100) * FROM Products";
+
                 model.Explanation =
                     "Bu sorgu bütün ürünleri listeler.";
             }
             else
             {
                 model.ErrorMessage =
-                    "Bu soru henüz desteklenmiyor. Ürünler veya üretim siparişleri hakkında soru yazınız.";
+                    "Bu soru henüz desteklenmiyor. Ürünler veya üretim emirleri hakkında soru yazınız.";
 
                 return View(model);
             }
