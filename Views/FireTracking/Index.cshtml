@@ -1,0 +1,242 @@
+﻿@model CeramiQ.Web.ViewModels.FireTrackingViewModel
+
+@{
+    ViewData["Title"] = "Fire Takibi";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between
+                align-items-start mb-4">
+        <div>
+            <span class="text-primary fw-semibold small">
+                ÜRETİM KALİTESİ
+            </span>
+
+            <h2 class="mt-1 mb-1">Fire Takibi</h2>
+
+            <p class="text-muted mb-0">
+                Üretim emirlerindeki fire miktarlarını ve
+                risk oranlarını takip edin.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Toplam Sağlam Üretim
+                    </p>
+
+                    <h3 class="mb-0">
+                        @Model.TotalProducedQuantity.ToString("N2")
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Toplam Fire
+                    </p>
+
+                    <h3 class="mb-0 text-danger">
+                        @Model.TotalScrapQuantity.ToString("N2")
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Genel Fire Oranı
+                    </p>
+
+                    <h3 class="mb-0
+                        @(Model.OverallScrapRate >= 10
+                                                    ? "text-danger"
+                                                    : Model.OverallScrapRate >= 5
+                                                        ? "text-warning"
+                                                        : "text-success")">
+                        %@Model.OverallScrapRate.ToString("N2")
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Yüksek Riskli Emir
+                    </p>
+
+                    <h3 class="mb-0 text-danger">
+                        @Model.HighRiskOrderCount
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form asp-action="Index"
+                  method="get"
+                  class="row g-3 align-items-end">
+
+                <div class="col-md-5">
+                    <label asp-for="ProductId"
+                           class="form-label">
+                        Ürün
+                    </label>
+
+                    <select asp-for="ProductId"
+                            asp-items="Model.Products"
+                            class="form-select">
+                        <option value="">Tüm ürünler</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="ProductionLine"
+                           class="form-label">
+                        Üretim Hattı
+                    </label>
+
+                    <select asp-for="ProductionLine"
+                            asp-items="Model.ProductionLines"
+                            class="form-select">
+                        <option value="">Tüm üretim hatları</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Filtrele
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary ms-2">
+                        Temizle
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            @if (Model.Orders.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover
+                                      align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Emir Numarası</th>
+                                <th>Ürün</th>
+                                <th>Üretim Hattı</th>
+                                <th>Sağlam Üretim</th>
+                                <th>Fire</th>
+                                <th>Fire Oranı</th>
+                                <th>Risk Durumu</th>
+                                <th>Emir Durumu</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var order in Model.Orders)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>
+                                            @order.OrderNumber
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="d-block">
+                                            @order.ProductName
+                                        </span>
+
+                                        <small class="text-muted">
+                                            @order.ProductCode
+                                        </small>
+                                    </td>
+
+                                    <td>@order.ProductionLine</td>
+
+                                    <td>
+                                        @order.ProducedQuantity.ToString("N2")
+                                    </td>
+
+                                    <td class="text-danger fw-semibold">
+                                        @order.ScrapQuantity.ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            %@order.ScrapRate.ToString("N2")
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        @if (order.RiskLevel == "Yüksek Risk")
+                                        {
+                                            <span class="badge bg-danger">
+                                                Yüksek Risk
+                                            </span>
+                                        }
+                                        else if (order.RiskLevel == "Dikkat")
+                                        {
+                                            <span class="badge bg-warning
+                                                                     text-dark">
+                                                Dikkat
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                Normal
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            @order.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center p-5">
+                    <h5>Üretim emri bulunamadı</h5>
+
+                    <p class="text-muted mb-0">
+                        Fire sonuçlarının hesaplanabilmesi için
+                        üretim emri verisi gereklidir.
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="alert alert-light border mt-4">
+        <strong>Hesaplama:</strong>
+        Fire oranı, fire miktarının sağlam üretim ile fire
+        miktarı toplamına bölünmesiyle hesaplanır.
+    </div>
+</div>

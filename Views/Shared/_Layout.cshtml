@@ -78,13 +78,12 @@
                     Üretim Emirleri
                 </a>
 
-                <a href="#"
-                   onclick="return false;"
-                   class="sidebar-link disabled-link">
+                <a asp-controller="FireTracking"
+                   asp-action="Index"
+                   class="sidebar-link @(currentController == "FireTracking" ? "active" : "")">
 
                     <span class="nav-symbol">△</span>
                     Fire Takibi
-                    <span class="soon-badge">Yakında</span>
                 </a>
 
                 <a href="#"
