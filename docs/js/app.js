@@ -2376,3 +2376,104 @@ function showEditScrapForm(record) {
         }
     );
 }
+// ----------------------------------------------------
+// FİRE RAPORUNU CSV OLARAK İNDİRME
+// ----------------------------------------------------
+
+const exportScrapRecordsButton =
+    document.getElementById("exportScrapRecordsButton");
+
+if (exportScrapRecordsButton) {
+    exportScrapRecordsButton.addEventListener(
+        "click",
+        function () {
+            const records = getSavedScrapRecords();
+
+            if (records.length === 0) {
+                showToast(
+                    "İndirilecek fire kaydı bulunmuyor."
+                );
+
+                return;
+            }
+
+            const csvRows = [
+                [
+                    "Emir Numarası",
+                    "Ürün",
+                    "Üretim Hattı",
+                    "Üretilen Miktar",
+                    "Fire Miktarı",
+                    "Fire Oranı",
+                    "Durum"
+                ]
+            ];
+
+            records.forEach(function (record) {
+                csvRows.push([
+                    record.orderNumber,
+                    record.product,
+                    record.productionLine,
+                    record.produced,
+                    record.scrap,
+                    "%" +
+                    Number(record.scrapRate)
+                        .toFixed(1)
+                        .replace(".", ","),
+                    record.statusText
+                ]);
+            });
+
+            const csvContent =
+                csvRows
+                    .map(function (row) {
+                        return row
+                            .map(function (value) {
+                                return (
+                                    '"' +
+                                    String(value)
+                                        .replace(/"/g, '""') +
+                                    '"'
+                                );
+                            })
+                            .join(";");
+                    })
+                    .join("\n");
+
+            const blob = new Blob(
+                ["\uFEFF" + csvContent],
+                {
+                    type: "text/csv;charset=utf-8;"
+                }
+            );
+
+            const downloadUrl =
+                URL.createObjectURL(blob);
+
+            const downloadLink =
+                document.createElement("a");
+
+            const today =
+                new Date()
+                    .toISOString()
+                    .slice(0, 10);
+
+            downloadLink.href = downloadUrl;
+            downloadLink.download =
+                "ceramiq-fire-raporu-" +
+                today +
+                ".csv";
+
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            downloadLink.remove();
+
+            URL.revokeObjectURL(downloadUrl);
+
+            showToast(
+                "Fire raporu başarıyla indirildi."
+            );
+        }
+    );
+}
+

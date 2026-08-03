@@ -1035,3 +1035,47 @@ tbody tr:last-child td {
     background: #2563eb;
     border-color: #2563eb;
 }
+
+
+/* Fire Takibi başlık ve buton düzeni */
+#scrapTracking .scrap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+#scrapTracking .page-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+#exportScrapRecordsButton {
+    padding: 12px 18px;
+    color: #2563eb;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #ffffff;
+    border: 1px solid #2563eb;
+    border-radius: 12px;
+}
+
+#exportScrapRecordsButton:hover {
+    color: #ffffff;
+    background: #2563eb;
+}
+
+/* Ekran dar olduğunda butonları başlığın altına al */
+@media (max-width: 900px) {
+    #scrapTracking .scrap-header {
+        flex-direction: column;
+    }
+
+    #scrapTracking .page-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+}
