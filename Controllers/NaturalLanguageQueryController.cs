@@ -55,7 +55,7 @@ namespace CeramiQ.Web.Controllers
                      question.Contains("sipariş"))
             {
                 generatedSql =
-    "SELECT TOP (100) * FROM ProductionOrders";
+     "SELECT TOP (100) * FROM ProductionOrders";
 
                 model.Explanation =
                     "Bu sorgu bütün üretim siparişlerini listeler.";
@@ -63,7 +63,7 @@ namespace CeramiQ.Web.Controllers
             else if (question.Contains("ürün"))
             {
                 generatedSql =
-    "SELECT TOP (100) * FROM Products";
+    "SELECT TOP (100) * FROM ProductionOrders";
                 model.Explanation =
                     "Bu sorgu bütün ürünleri listeler.";
             }
