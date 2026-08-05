@@ -9,7 +9,7 @@ builder.Services.AddScoped<SafeSqlQueryService>();
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
-        "DefaultConnection ba�lant� adresi bulunamad�.");
+        "DefaultConnection ba�lant� adresi bulunamad�.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -38,3 +38,18 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+// Uygulama başlatma kodlarının olduğu kısım (var app = builder.Build(); sonrasında):
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        DbInitializer.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Veritabanı oluşturulurken bir hata oluştu.");
+    }
+}
